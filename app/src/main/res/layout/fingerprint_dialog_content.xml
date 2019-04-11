@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/fingerprint_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingStart="8dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="8dp">
+
+    <TextView
+            android:id="@+id/fingerprint_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:gravity="center_horizontal"
+            android:text="Description"
+            android:textAlignment="center"
+            android:textAppearance="@android:style/TextAppearance.Material.Subhead"
+            android:textSize="18sp"
+            tools:targetApi="lollipop"/>
+
+    <TextView
+            android:id="@+id/fingerprint_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@android:style/TextAppearance.Material.Subhead"
+            android:layout_below="@+id/fingerprint_description"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:gravity="center_horizontal"
+            android:minLines="2"
+            android:text="Status"
+            tools:targetApi="lollipop"/>
+
+    <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/fingerprint_animation_view"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:layout_below="@+id/fingerprint_status"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            tools:visibility="invisible"/>
+
+    <ImageView
+            android:id="@+id/fingerprint_image_view"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:layout_below="@+id/fingerprint_status"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_fingerprint_authentificate_icon"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_fingerprint"
+            tools:visibility="visible"/>
+
+</RelativeLayout>
