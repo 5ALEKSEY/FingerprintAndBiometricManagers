@@ -27,7 +27,7 @@
                 android:visibility="invisible"/>
 
         <Button
-                android:id="@+id/second_dialog_button"
+                android:id="@+id/btn_cancel_action"
                 style="?android:attr/buttonBarPositiveButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

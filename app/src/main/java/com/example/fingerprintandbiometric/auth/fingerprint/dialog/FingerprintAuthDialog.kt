@@ -1,6 +1,5 @@
 package com.example.fingerprintandbiometric.auth.fingerprint.dialog
 
-import android.content.Context
 import android.content.DialogInterface
 import android.hardware.fingerprint.FingerprintManager
 import android.os.Build
@@ -11,7 +10,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
@@ -29,7 +27,7 @@ import javax.crypto.KeyGenerator
 
 @RequiresApi(Build.VERSION_CODES.M)
 class FingerprintAuthDialog : DialogFragment(),
-    FingerprintUiHelper.Callback {
+    FingerprintUiHelper.FingerprintAuthCallback {
 
     companion object {
         const val TAG = "FingerprintAuthDialog"
@@ -39,28 +37,28 @@ class FingerprintAuthDialog : DialogFragment(),
                 KeyProperties.ENCRYPTION_PADDING_PKCS7
     }
 
+    // You should use your unique alias for key in key store (for example userId)
     private val BIP_KEY_ALIAS = "test_alias"
 
-    private lateinit var fingerprintContainer: View
-    private lateinit var secondDialogButton: Button
+    private lateinit var mFingerprintContainer: View
+    private lateinit var mCancelActionButton: Button
 
-    private lateinit var authenticationListener: AuthenticationListener
-    private lateinit var cryptoObject: FingerprintManager.CryptoObject
-    private lateinit var fingerprintUiHelper: FingerprintUiHelper
-    private lateinit var inputMethodManager: InputMethodManager
+    private lateinit var mCryptoObject: FingerprintManager.CryptoObject
+    private lateinit var mFingerprintUiHelper: FingerprintUiHelper
+    private lateinit var mKeyGenerator: KeyGenerator
+    private lateinit var mKeyStore: KeyStore
 
-    private lateinit var keyStore: KeyStore
-    private lateinit var keyGenerator: KeyGenerator
+    private var mAuthenticationListener: AuthenticationListener? = null
 
     fun setAuthListener(authenticationListener: AuthenticationListener) {
-        this.authenticationListener = authenticationListener
+        this.mAuthenticationListener = authenticationListener
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Do not create a new Fragment when the Activity is re-created such as orientation changes.
         retainInstance = true
+        isCancelable = false
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog)
     }
 
@@ -75,17 +73,19 @@ class FingerprintAuthDialog : DialogFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fingerprintContainer = view.findViewById(R.id.fingerprint_container)
-        secondDialogButton = view.findViewById(R.id.second_dialog_button)
+        mFingerprintContainer = view.findViewById(R.id.fingerprint_container)
+        mCancelActionButton = view.findViewById(R.id.btn_cancel_action)
 
-        secondDialogButton.setOnClickListener {
+        mCancelActionButton.setOnClickListener {
+            mFingerprintUiHelper.stopListening()
+            mAuthenticationListener?.onAuthCancel()
             dismiss()
         }
 
         val animationView = view.findViewById<LottieAnimationView>(R.id.fingerprint_animation_view)
         animationView.useHardwareAcceleration(true)
 
-        fingerprintUiHelper = FingerprintUiHelper(
+        mFingerprintUiHelper = FingerprintUiHelper(
             activity!!.getSystemService(FingerprintManager::class.java),
             view.findViewById(R.id.fingerprint_image_view),
             animationView,
@@ -93,8 +93,8 @@ class FingerprintAuthDialog : DialogFragment(),
             this
         )
 
-        secondDialogButton.text = "Cancel"
-        fingerprintContainer.visibility = View.VISIBLE
+        mCancelActionButton.text = getString(R.string.cancel_button_text)
+        mFingerprintContainer.visibility = View.VISIBLE
     }
 
     override fun onResume() {
@@ -104,29 +104,19 @@ class FingerprintAuthDialog : DialogFragment(),
 
     override fun onPause() {
         super.onPause()
-        fingerprintUiHelper.stopListening()
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        inputMethodManager = context.getSystemService(InputMethodManager::class.java)
-    }
-
-    override fun onDismiss(dialog: DialogInterface?) {
-        super.onDismiss(dialog)
-        authenticationListener.onAuthCancel()
+        mFingerprintUiHelper.stopListening()
     }
 
     override fun onAuthenticated() {
         if (isResumed) {
-            authenticationListener.onAuthSuccess()
+            mAuthenticationListener?.onAuthSuccess()
             dismiss()
         }
     }
 
     override fun onError(errorCode: Int) {
-        authenticationListener.onAuthFailed()
-        fingerprintUiHelper.stopListening()
+        mAuthenticationListener?.onAuthFailed()
+        mFingerprintUiHelper.stopListening()
     }
 
     private fun initKeyStoreAndKeyGenerator() {
@@ -136,10 +126,10 @@ class FingerprintAuthDialog : DialogFragment(),
         }
 
         try {
-            keyStore = KeyStore.getInstance(ANDROID_KEY_STORE)
-            keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEY_STORE)
+            mKeyStore = KeyStore.getInstance(ANDROID_KEY_STORE)
+            mKeyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEY_STORE)
 
-            keyStore.load(null)
+            mKeyStore.load(null)
 
             val keyProperties = KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
 
@@ -147,8 +137,8 @@ class FingerprintAuthDialog : DialogFragment(),
                 .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
                 .setUserAuthenticationRequired(true)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
-            keyGenerator.init(builder.build())
-            keyGenerator.generateKey()
+            mKeyGenerator.init(builder.build())
+            mKeyGenerator.generateKey()
 
         } catch (e: KeyStoreException) {
             logException(e)
@@ -164,22 +154,22 @@ class FingerprintAuthDialog : DialogFragment(),
     }
 
     private fun initAndStartFingerprintListening() {
-        if (initCipher()) {
-            fingerprintUiHelper.startListening(cryptoObject)
+        if (isCipherInitSuccess()) {
+            mFingerprintUiHelper.startListening(mCryptoObject)
         }
     }
 
-    private fun initCipher(): Boolean {
+    private fun isCipherInitSuccess(): Boolean {
         return try {
             initKeyStoreAndKeyGenerator()
-            keyStore = KeyStore.getInstance(ANDROID_KEY_STORE)
-            keyStore.load(null)
+            mKeyStore = KeyStore.getInstance(ANDROID_KEY_STORE)
+            mKeyStore.load(null)
             val cipher = Cipher.getInstance(ENCRYPTION_TRANSFORMATION)
-            cipher.init(Cipher.ENCRYPT_MODE, keyStore.getKey(BIP_KEY_ALIAS, null))
-            cryptoObject = FingerprintManager.CryptoObject(cipher)
+            cipher.init(Cipher.ENCRYPT_MODE, mKeyStore.getKey(BIP_KEY_ALIAS, null))
+            mCryptoObject = FingerprintManager.CryptoObject(cipher)
             true
         } catch (e: Exception) {
-            Log.d(TAG, "initCipher: ${e.message}")
+            Log.d(TAG, "isCipherInitSuccess: ${e.message}")
             false
         }
     }

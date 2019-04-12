@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">FingerprintAndBiometric</string>
+    <string name="start_auth_button_text">start auth</string>
+    <string name="fingerprint_dialog_title_text">Confirm your fingerprint to continue</string>
+    <string name="fingerprint_dialog_status_text">Touch sensor for unlock</string>
+    <string name="biometric_dialog_description_text">This app uses biometric authentication to protect your data
+    </string>
+    <string name="cancel_button_text">Cancel</string>
+    <string name="success_auth_action_text">Auth was successful</string>
+    <string name="failed_auth_action_text">Auth was failed</string>
 </resources>

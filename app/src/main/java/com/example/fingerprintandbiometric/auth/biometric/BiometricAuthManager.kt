@@ -6,6 +6,7 @@ import android.hardware.biometrics.BiometricPrompt
 import android.os.Build
 import android.os.CancellationSignal
 import androidx.annotation.RequiresApi
+import com.example.fingerprintandbiometric.R
 import com.example.fingerprintandbiometric.auth.interfaces.AuthManager
 import com.example.fingerprintandbiometric.auth.interfaces.AuthenticationListener
 
@@ -13,7 +14,7 @@ import com.example.fingerprintandbiometric.auth.interfaces.AuthenticationListene
 class BiometricAuthManager(private val context: Context) : AuthManager {
 
     private var mAuthenticationListener: AuthenticationListener? = null
-    private val callback = object : BiometricPrompt.AuthenticationCallback() {
+    private val mBiometricAuthCallback = object : BiometricPrompt.AuthenticationCallback() {
 
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
             super.onAuthenticationError(errorCode, errString)
@@ -33,17 +34,17 @@ class BiometricAuthManager(private val context: Context) : AuthManager {
 
     override fun authenticate() {
         val biometricPrompt = BiometricPrompt.Builder(context)
-            .setTitle("Biometric Demo")
-            .setSubtitle("Authentication is required to continue")
-            .setDescription("This app uses biometric authentication to protect your data.")
-            .setNegativeButton("Cancel", context.mainExecutor,
+            .setTitle(context.getString(R.string.fingerprint_dialog_title_text))
+            .setDescription(context.getString(R.string.biometric_dialog_description_text))
+            .setNegativeButton(
+                context.getString(R.string.cancel_button_text), context.mainExecutor,
                 DialogInterface.OnClickListener { _, _ -> mAuthenticationListener?.onAuthCancel() })
             .build()
 
         biometricPrompt.authenticate(
             getCancellationSignal(),
             context.mainExecutor,
-            callback
+            mBiometricAuthCallback
         )
     }
 

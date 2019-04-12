@@ -15,42 +15,49 @@ class FingerprintUiHelper internal constructor(private val fingerprintMgr: Finge
                                                private val imageView: ImageView,
                                                private val animationView: LottieAnimationView,
                                                private val errorTextView: TextView,
-                                               private val callback: Callback) :
+                                               private val callback: FingerprintAuthCallback) :
     FingerprintManager.AuthenticationCallback() {
 
-    private var cancellationSignal: CancellationSignal? = null
-    private var selfCancelled = false
+    companion object {
+        private const val SUCCESS_LOTTIE_ANIMATION = "fingerprint_success_animation.json"
+        private const val FAILED_LOTTIE_ANIMATION = "fingerprint_failed_animation.json"
+        private const val ERROR_TIMEOUT_MILLIS: Long = 1600
+        private const val SUCCESS_TIMEOUT_MILLIS: Long = 1300
+    }
 
-    val isFingerprintAuthAvailable: Boolean
-        get() = fingerprintMgr.isHardwareDetected && fingerprintMgr.hasEnrolledFingerprints()
+    interface FingerprintAuthCallback {
+        fun onAuthenticated()
+        fun onError(errorCode: Int)
+    }
 
-    private val resetErrorTextRunnable = Runnable {
+    private var mCancellationSignal: CancellationSignal? = null
+    private var mIsSelfCancelled = false
+    private val mResetErrorTextAction = Runnable {
         animationView.visibility = View.INVISIBLE
         imageView.visibility = View.VISIBLE
-        errorTextView.run {
+        errorTextView.apply {
             setTextColor(errorTextView.resources.getColor(R.color.gray, null))
-            text = "Touch for unlock"
+            text = context.getString(R.string.fingerprint_dialog_status_text)
         }
     }
 
     fun startListening(cryptoObject: FingerprintManager.CryptoObject) {
-        if (!isFingerprintAuthAvailable) return
-        cancellationSignal = CancellationSignal()
-        selfCancelled = false
-        fingerprintMgr.authenticate(cryptoObject, cancellationSignal, 0, this, null)
-        errorTextView.post(resetErrorTextRunnable)
+        mCancellationSignal = CancellationSignal()
+        mIsSelfCancelled = false
+        fingerprintMgr.authenticate(cryptoObject, mCancellationSignal, 0, this, null)
+        errorTextView.post(mResetErrorTextAction)
     }
 
     fun stopListening() {
-        cancellationSignal?.also {
-            selfCancelled = true
+        mCancellationSignal?.also {
+            mIsSelfCancelled = true
             it.cancel()
         }
-        cancellationSignal = null
+        mCancellationSignal = null
     }
 
     override fun onAuthenticationError(errMsgId: Int, errString: CharSequence) {
-        if (!selfCancelled) {
+        if (!mIsSelfCancelled) {
             showError(errString, false)
         }
         callback.onError(errMsgId)
@@ -60,43 +67,33 @@ class FingerprintUiHelper internal constructor(private val fingerprintMgr: Finge
         showError(helpString)
 
     override fun onAuthenticationFailed() =
-        showError("Failed")
+        showError(errorTextView.context.getString(R.string.failed_auth_action_text))
 
     override fun onAuthenticationSucceeded(result: FingerprintManager.AuthenticationResult) {
-        errorTextView.run {
-            removeCallbacks(resetErrorTextRunnable)
-            setTextColor(errorTextView.resources.getColor(R.color.fingerprint, null))
-            text = "Success"
+        errorTextView.apply {
+            removeCallbacks(mResetErrorTextAction)
+            setTextColor(errorTextView.resources.getColor(R.color.colorPrimary, null))
+            text = context.getString(R.string.success_auth_action_text)
         }
         imageView.visibility = View.GONE
-        animationView.run {
+        animationView.apply {
             visibility = View.VISIBLE
-            setAnimation("fingerprint_success_animation.json")
+            setAnimation(SUCCESS_LOTTIE_ANIMATION)
             playAnimation()
-            postDelayed({ callback.onAuthenticated() }, SUCCESS_DELAY_MILLIS)
+            postDelayed({ callback.onAuthenticated() }, SUCCESS_TIMEOUT_MILLIS)
         }
     }
 
-    fun showError(error: CharSequence, isErrorResetNeeded: Boolean = true) {
+    private fun showError(error: CharSequence, isErrorResetNeeded: Boolean = true) {
         imageView.visibility = View.GONE
         animationView.visibility = View.VISIBLE
-        animationView.setAnimation("fingerprint_failed_animation.json")
+        animationView.setAnimation(FAILED_LOTTIE_ANIMATION)
         animationView.playAnimation()
-        errorTextView.run {
+        errorTextView.apply {
             text = error
             setTextColor(errorTextView.resources.getColor(R.color.red, null))
-            removeCallbacks(resetErrorTextRunnable)
-            if (isErrorResetNeeded) postDelayed(resetErrorTextRunnable, ERROR_TIMEOUT_MILLIS)
+            removeCallbacks(mResetErrorTextAction)
+            if (isErrorResetNeeded) postDelayed(mResetErrorTextAction, ERROR_TIMEOUT_MILLIS)
         }
-    }
-
-    interface Callback {
-        fun onAuthenticated()
-        fun onError(errorCode: Int)
-    }
-
-    companion object {
-        const val ERROR_TIMEOUT_MILLIS: Long = 1600
-        const val SUCCESS_DELAY_MILLIS: Long = 1300
     }
 }

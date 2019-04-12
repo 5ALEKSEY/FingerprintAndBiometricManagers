@@ -3,8 +3,8 @@ package com.example.fingerprintandbiometric.auth.fingerprint
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.example.fingerprintandbiometric.auth.fingerprint.dialog.FingerprintAuthDialog
 import com.example.fingerprintandbiometric.auth.interfaces.AuthManager
 import com.example.fingerprintandbiometric.auth.interfaces.AuthenticationListener

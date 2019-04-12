@@ -43,13 +43,8 @@ fun Context.isBiometricSupported(): Boolean {
     if (!keyguardManager.isKeyguardSecure) {
         return false
     }
-    if (ActivityCompat.checkSelfPermission(
-            this,
-            Manifest.permission.USE_BIOMETRIC
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_BIOMETRIC) != PackageManager.PERMISSION_GRANTED) {
         return false
     }
-
     return this.packageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)
 }

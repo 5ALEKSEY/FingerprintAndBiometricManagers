@@ -7,4 +7,5 @@
     <color name="red">#FF0000</color>
     <color name="fingerprint">#3D4F57</color>
     <color name="gray">#888888</color>
+    <color name="black">#000000</color>
 </resources>
