@@ -7,14 +7,14 @@ import android.os.Build
 import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import androidx.annotation.RequiresApi
-import androidx.fragment.app.DialogFragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import androidx.annotation.RequiresApi
+import androidx.fragment.app.DialogFragment
 import com.airbnb.lottie.LottieAnimationView
 import com.example.fingerprintandbiometric.R
 import com.example.fingerprintandbiometric.auth.interfaces.AuthenticationListener
@@ -52,6 +52,10 @@ class FingerprintAuthDialog : DialogFragment(),
     private lateinit var keyStore: KeyStore
     private lateinit var keyGenerator: KeyGenerator
 
+    fun setAuthListener(authenticationListener: AuthenticationListener) {
+        this.authenticationListener = authenticationListener
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -60,12 +64,11 @@ class FingerprintAuthDialog : DialogFragment(),
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        dialog.requestWindowFeature(STYLE_NO_TITLE)
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        dialog?.requestWindowFeature(STYLE_NO_TITLE)
+        dialog?.window?.setBackgroundDrawableResource(R.drawable.bg_fingerprint_dialog)
         return inflater.inflate(R.layout.fingerprint_dialog_container, container, false)
     }
 
@@ -90,14 +93,8 @@ class FingerprintAuthDialog : DialogFragment(),
             this
         )
 
-        // If fingerprint authentication is not available, switch immediately to the backup
-        // (password) screen.
-        if (!fingerprintUiHelper.isFingerprintAuthAvailable) {
-            dismiss()
-            return
-        }
-
-        initUI()
+        secondDialogButton.text = "Cancel"
+        fingerprintContainer.visibility = View.VISIBLE
     }
 
     override fun onResume() {
@@ -115,14 +112,21 @@ class FingerprintAuthDialog : DialogFragment(),
         inputMethodManager = context.getSystemService(InputMethodManager::class.java)
     }
 
-    fun setAuthListener(authenticationListener: AuthenticationListener) {
-        this.authenticationListener = authenticationListener
+    override fun onDismiss(dialog: DialogInterface?) {
+        super.onDismiss(dialog)
+        authenticationListener.onAuthCancel()
     }
 
-    private fun initAndStartFingerprintListening() {
-        if (initCipher()) {
-            fingerprintUiHelper.startListening(cryptoObject)
+    override fun onAuthenticated() {
+        if (isResumed) {
+            authenticationListener.onAuthSuccess()
+            dismiss()
         }
+    }
+
+    override fun onError(errorCode: Int) {
+        authenticationListener.onAuthFailed()
+        fingerprintUiHelper.stopListening()
     }
 
     private fun initKeyStoreAndKeyGenerator() {
@@ -159,7 +163,13 @@ class FingerprintAuthDialog : DialogFragment(),
         }
     }
 
-    fun initCipher(): Boolean {
+    private fun initAndStartFingerprintListening() {
+        if (initCipher()) {
+            fingerprintUiHelper.startListening(cryptoObject)
+        }
+    }
+
+    private fun initCipher(): Boolean {
         return try {
             initKeyStoreAndKeyGenerator()
             keyStore = KeyStore.getInstance(ANDROID_KEY_STORE)
@@ -172,25 +182,5 @@ class FingerprintAuthDialog : DialogFragment(),
             Log.d(TAG, "initCipher: ${e.message}")
             false
         }
-    }
-
-    override fun onDismiss(dialog: DialogInterface?) {
-        super.onDismiss(dialog)
-        authenticationListener.onAuthCancel()
-    }
-
-    private fun initUI() {
-        secondDialogButton.text = "Enter passcode"
-        fingerprintContainer.visibility = View.VISIBLE
-    }
-
-    override fun onAuthenticated() {
-        authenticationListener.onAuthSuccess()
-        dismiss()
-    }
-
-    override fun onError(errorCode: Int) {
-        authenticationListener.onAuthFailed()
-        fingerprintUiHelper.stopListening()
     }
 }

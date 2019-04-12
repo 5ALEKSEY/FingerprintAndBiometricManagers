@@ -19,7 +19,7 @@ enum class FingerprintState(private val stateMessage: String) {
     fun getStateMessage() = stateMessage
 }
 
-fun Context.checkDeviceForFingerprintAllow() =
+fun Context.checkDeviceFingerprintState() =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         val fingerprintManager = this.getSystemService(Context.FINGERPRINT_SERVICE) as? FingerprintManager
 

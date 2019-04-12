@@ -3,21 +3,20 @@ package com.example.fingerprintandbiometric.auth.fingerprint.dialog
 import android.hardware.fingerprint.FingerprintManager
 import android.os.Build
 import android.os.CancellationSignal
-import androidx.annotation.RequiresApi
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import com.airbnb.lottie.LottieAnimationView
 import com.example.fingerprintandbiometric.R
 
 @RequiresApi(Build.VERSION_CODES.M)
-class FingerprintUiHelper internal constructor(
-    private val fingerprintMgr: FingerprintManager,
-    private val imageView: ImageView,
-    private val animationView: LottieAnimationView,
-    private val errorTextView: TextView,
-    private val callback: Callback
-) : FingerprintManager.AuthenticationCallback() {
+class FingerprintUiHelper internal constructor(private val fingerprintMgr: FingerprintManager,
+                                               private val imageView: ImageView,
+                                               private val animationView: LottieAnimationView,
+                                               private val errorTextView: TextView,
+                                               private val callback: Callback) :
+    FingerprintManager.AuthenticationCallback() {
 
     private var cancellationSignal: CancellationSignal? = null
     private var selfCancelled = false
