@@ -24,7 +24,7 @@
             android:gravity="center_horizontal"
             android:text="@string/fingerprint_dialog_title_text"
             android:textAlignment="center"
-            android:textAppearance="@android:style/TextAppearance.Material.Subhead"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textSize="18sp"
             tools:targetApi="lollipop"/>
 
@@ -32,7 +32,7 @@
             android:id="@+id/fingerprint_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@android:style/TextAppearance.Material.Subhead"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:layout_below="@+id/fingerprint_dialog_title"
             android:layout_centerHorizontal="true"
             android:layout_marginStart="8dp"
