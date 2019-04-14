@@ -1,18 +1,17 @@
 package com.example.fingerprintandbiometric.auth.fingerprint.dialog
 
-import android.content.DialogInterface
 import android.hardware.fingerprint.FingerprintManager
 import android.os.Build
 import android.os.Bundle
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import androidx.annotation.RequiresApi
+import androidx.fragment.app.DialogFragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.annotation.RequiresApi
-import androidx.fragment.app.DialogFragment
 import com.airbnb.lottie.LottieAnimationView
 import com.example.fingerprintandbiometric.R
 import com.example.fingerprintandbiometric.auth.interfaces.AuthenticationListener

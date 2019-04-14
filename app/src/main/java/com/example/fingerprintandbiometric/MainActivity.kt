@@ -4,13 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
+import android.widget.Button
 import com.example.fingerprintandbiometric.auth.exceptions.AuthManagerProvideException
 import com.example.fingerprintandbiometric.auth.interfaces.AuthManager
 import com.example.fingerprintandbiometric.auth.interfaces.AuthenticationListener
 import com.example.fingerprintandbiometric.auth.provider.AuthManagerProvider
 import com.example.fingerprintandbiometric.extensions.FingerprintState
 import com.example.fingerprintandbiometric.extensions.notifyUser
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), AuthenticationListener {
 
@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity(), AuthenticationListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         // authenticate with button click
-        authenticateActionButton.setOnClickListener {
+        findViewById<Button>(R.id.btn_auth_action).setOnClickListener {
             mAuthManager.authenticate()
         }
     }
