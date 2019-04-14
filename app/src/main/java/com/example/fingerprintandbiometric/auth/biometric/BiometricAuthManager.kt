@@ -33,9 +33,10 @@ class BiometricAuthManager(private val context: Context) : AuthManager {
     }
 
     override fun authenticate() {
+        val appName = context.getString(R.string.app_name)
         val biometricPrompt = BiometricPrompt.Builder(context)
             .setTitle(context.getString(R.string.fingerprint_dialog_title_text))
-            .setDescription(context.getString(R.string.biometric_dialog_description_text))
+            .setDescription(context.getString(R.string.biometric_dialog_description_text, appName))
             .setNegativeButton(
                 context.getString(R.string.cancel_button_text), context.mainExecutor,
                 DialogInterface.OnClickListener { _, _ -> mAuthenticationListener?.onAuthCancel() })
