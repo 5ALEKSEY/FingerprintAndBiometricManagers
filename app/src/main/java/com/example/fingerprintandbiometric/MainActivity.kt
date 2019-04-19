@@ -3,13 +3,13 @@ package com.example.fingerprintandbiometric
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
-import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import com.example.fingerprintandbiometric.auth.exceptions.AuthManagerProvideException
 import com.example.fingerprintandbiometric.auth.interfaces.AuthManager
 import com.example.fingerprintandbiometric.auth.interfaces.AuthenticationListener
 import com.example.fingerprintandbiometric.auth.provider.AuthManagerProvider
-import com.example.fingerprintandbiometric.extensions.FingerprintState
+import com.example.fingerprintandbiometric.auth.state.FingerprintState
 import com.example.fingerprintandbiometric.extensions.notifyUser
 
 class MainActivity : AppCompatActivity(), AuthenticationListener {

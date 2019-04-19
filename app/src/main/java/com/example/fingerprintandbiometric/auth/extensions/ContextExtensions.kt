@@ -1,4 +1,4 @@
-package com.example.fingerprintandbiometric.extensions
+package com.example.fingerprintandbiometric.auth.extensions
 
 import android.Manifest
 import android.app.KeyguardManager
@@ -8,14 +8,7 @@ import android.hardware.fingerprint.FingerprintManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-
-enum class FingerprintState(val stateMessage: String) {
-    FINGERPRINT_ALLOW("Everything will be nice :)"),
-    VERSION_DOES_NOT_ALLOW("Your device version doesn't allow for fingerprint"),
-    DEVICE_HARDWARE_DOES_NOT_ALLOW("Your device hasn't hardware for fingerprint"),
-    NO_ENROLLED_FINGERPRINTS("Please, add fingerprint for device in security settings"),
-    UNKNOWN_STATE("Ooooops, wtf");
-}
+import com.example.fingerprintandbiometric.auth.state.FingerprintState
 
 fun Context.checkDeviceFingerprintState() =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

@@ -5,12 +5,12 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.fingerprintandbiometric.auth.biometric.BiometricAuthManager
 import com.example.fingerprintandbiometric.auth.exceptions.AuthManagerProvideException
+import com.example.fingerprintandbiometric.auth.extensions.checkDeviceFingerprintState
+import com.example.fingerprintandbiometric.auth.extensions.isBiometricSupported
 import com.example.fingerprintandbiometric.auth.fingerprint.FingerprintAuthManager
 import com.example.fingerprintandbiometric.auth.interfaces.AuthManager
 import com.example.fingerprintandbiometric.auth.interfaces.AuthenticationListener
-import com.example.fingerprintandbiometric.extensions.FingerprintState
-import com.example.fingerprintandbiometric.extensions.checkDeviceFingerprintState
-import com.example.fingerprintandbiometric.extensions.isBiometricSupported
+import com.example.fingerprintandbiometric.auth.state.FingerprintState
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 class AuthManagerProvider {
