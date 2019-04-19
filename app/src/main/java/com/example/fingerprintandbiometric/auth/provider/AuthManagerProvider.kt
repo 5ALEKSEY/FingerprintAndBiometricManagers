@@ -21,11 +21,11 @@ class AuthManagerProvider {
             return if (fingerprintState == FingerprintState.FINGERPRINT_ALLOW) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && context.isBiometricSupported()) {
                     BiometricAuthManager(context).apply {
-                        setAuthListener(authenticationListener)
+                        attachAuthListener(authenticationListener)
                     }
                 } else {
                     FingerprintAuthManager(context).apply {
-                        setAuthListener(authenticationListener)
+                        attachAuthListener(authenticationListener)
                     }
                 }
             } else {

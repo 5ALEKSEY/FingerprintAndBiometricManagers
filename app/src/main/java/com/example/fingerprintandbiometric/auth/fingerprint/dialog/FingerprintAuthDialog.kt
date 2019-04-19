@@ -26,7 +26,7 @@ import javax.crypto.KeyGenerator
 
 @RequiresApi(Build.VERSION_CODES.M)
 class FingerprintAuthDialog : DialogFragment(),
-    FingerprintUiHelper.FingerprintAuthCallback {
+    FingerprintUiHelper.FingerprintUiHelperCallback {
 
     companion object {
         const val TAG = "FingerprintAuthDialog"

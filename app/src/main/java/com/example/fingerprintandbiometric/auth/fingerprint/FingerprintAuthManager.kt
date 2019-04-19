@@ -24,7 +24,7 @@ class FingerprintAuthManager(private val context: Context) : AuthManager {
         }
     }
 
-    override fun setAuthListener(authenticationListener: AuthenticationListener) {
+    override fun attachAuthListener(authenticationListener: AuthenticationListener) {
         this.mAuthenticationListener = authenticationListener
     }
 

@@ -17,17 +17,14 @@ class BiometricAuthManager(private val context: Context) : AuthManager {
     private val mBiometricAuthCallback = object : BiometricPrompt.AuthenticationCallback() {
 
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-            super.onAuthenticationError(errorCode, errString)
             mAuthenticationListener?.onAuthFailed()
         }
 
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-            super.onAuthenticationSucceeded(result)
             mAuthenticationListener?.onAuthSuccess()
         }
 
         override fun onAuthenticationFailed() {
-            super.onAuthenticationFailed()
             mAuthenticationListener?.onAuthFailed()
         }
     }
@@ -49,7 +46,7 @@ class BiometricAuthManager(private val context: Context) : AuthManager {
         )
     }
 
-    override fun setAuthListener(authenticationListener: AuthenticationListener) {
+    override fun attachAuthListener(authenticationListener: AuthenticationListener) {
         this.mAuthenticationListener = authenticationListener
     }
 

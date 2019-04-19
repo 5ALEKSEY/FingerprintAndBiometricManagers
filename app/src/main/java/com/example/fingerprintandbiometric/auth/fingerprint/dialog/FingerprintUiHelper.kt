@@ -15,7 +15,7 @@ class FingerprintUiHelper internal constructor(private val fingerprintMgr: Finge
                                                private val imageView: ImageView,
                                                private val animationView: LottieAnimationView,
                                                private val errorTextView: TextView,
-                                               private val callback: FingerprintAuthCallback) :
+                                               private val callback: FingerprintUiHelperCallback) :
     FingerprintManager.AuthenticationCallback() {
 
     companion object {
@@ -25,7 +25,7 @@ class FingerprintUiHelper internal constructor(private val fingerprintMgr: Finge
         private const val SUCCESS_TIMEOUT_MILLIS: Long = 1300
     }
 
-    interface FingerprintAuthCallback {
+    interface FingerprintUiHelperCallback {
         fun onAuthenticated()
         fun onError(errorCode: Int)
     }
