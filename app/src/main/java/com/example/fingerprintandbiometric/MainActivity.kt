@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity(), AuthenticationListener {
                 // open security settings for add fingerprint
                 openDeviceSecuritySettings()
             }
-            notifyUser(e.fingerprintState.getStateMessage())
+            notifyUser(e.fingerprintState.stateMessage)
         }
     }
 
