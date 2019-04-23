@@ -9,13 +9,15 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.airbnb.lottie.LottieAnimationView
 import com.example.fingerprintandbiometric.R
+import com.example.fingerprintandbiometric.auth.interfaces.AuthenticationListener
 
 @RequiresApi(Build.VERSION_CODES.M)
 class FingerprintUiHelper internal constructor(private val fingerprintMgr: FingerprintManager,
                                                private val imageView: ImageView,
                                                private val animationView: LottieAnimationView,
                                                private val errorTextView: TextView,
-                                               private val callback: FingerprintUiHelperCallback) :
+                                               private val callback: FingerprintUiHelperCallback,
+                                               private val authenticationListener: AuthenticationListener?) :
     FingerprintManager.AuthenticationCallback() {
 
     companion object {
@@ -27,7 +29,7 @@ class FingerprintUiHelper internal constructor(private val fingerprintMgr: Finge
 
     interface FingerprintUiHelperCallback {
         fun onAuthenticated()
-        fun onError(errorCode: Int)
+        fun onError()
     }
 
     private var mCancellationSignal: CancellationSignal? = null
@@ -59,15 +61,17 @@ class FingerprintUiHelper internal constructor(private val fingerprintMgr: Finge
     override fun onAuthenticationError(errMsgId: Int, errString: CharSequence) {
         if (!mIsSelfCancelled) {
             showError(errString, false)
+            callback.onError()
         }
-        callback.onError(errMsgId)
     }
 
     override fun onAuthenticationHelp(helpMsgId: Int, helpString: CharSequence) =
         showError(helpString)
 
-    override fun onAuthenticationFailed() =
+    override fun onAuthenticationFailed() {
         showError(errorTextView.context.getString(R.string.failed_auth_action_text))
+        authenticationListener?.onAuthFailed()
+    }
 
     override fun onAuthenticationSucceeded(result: FingerprintManager.AuthenticationResult) {
         errorTextView.apply {

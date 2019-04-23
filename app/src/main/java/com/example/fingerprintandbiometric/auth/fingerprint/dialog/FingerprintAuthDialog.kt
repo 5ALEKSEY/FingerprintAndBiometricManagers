@@ -89,7 +89,8 @@ class FingerprintAuthDialog : DialogFragment(),
             view.findViewById(R.id.fingerprint_image_view),
             animationView,
             view.findViewById(R.id.fingerprint_status),
-            this
+            this,
+            mAuthenticationListener
         )
 
         mCancelActionButton.text = getString(R.string.cancel_button_text)
@@ -113,7 +114,7 @@ class FingerprintAuthDialog : DialogFragment(),
         }
     }
 
-    override fun onError(errorCode: Int) {
+    override fun onError() {
         mAuthenticationListener?.onAuthFailed()
         mFingerprintUiHelper.stopListening()
     }
